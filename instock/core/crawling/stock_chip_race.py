@@ -1,13 +1,48 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 """
-Date: 2025/2/26 12:18
-Desc: 通达信抢筹
-http://excalc.icfqs.com:7616/TQLEX?Entry=HQServ.hq_nlp
+通达信竞价抢筹数据抓取模块
+
+本模块提供从通达信获取集合竞价阶段抢筹数据的功能，用于分析早盘和尾盘
+的主力资金抢筹行为。
+
+数据来源
+--------
+- 通达信抢筹数据接口: http://excalc.icfqs.com:7616/TQLEX?Entry=HQServ.hq_nlp
+
+核心功能
+--------
+- **stock_chip_race_open**: 获取早盘竞价抢筹数据
+- **stock_chip_race_close**: 获取尾盘竞价抢筹数据
+
+竞价抢筹说明
+------------
+- **早盘抢筹**: 9:15-9:25 集合竞价阶段的委托和成交情况
+- **尾盘抢筹**: 14:57-15:00 收盘集合竞价阶段的情况
+- **抢筹幅度**: 开盘价相对昨收的涨幅
+- **抢筹委托金额**: 集合竞价阶段的委托金额
+- **抢筹成交金额**: 集合竞价阶段的成交金额
+- **抢筹占比**: 抢筹成交金额占委托金额的比例
+
+使用方式
+--------
+获取早盘抢筹数据::
+
+    from instock.core.crawling.stock_chip_race import stock_chip_race_open
+    df = stock_chip_race_open()  # 获取当日数据
+    df = stock_chip_race_open(date="2025-02-26")  # 获取指定日期数据
+    print(df.head())
+
+注意事项
+--------
+- 早盘数据在 9:25 后更新
+- 尾盘数据在 15:00 后更新
+- 接口可能需要特定的请求头
 """
 
 import pandas as pd
 import requests
+
 from instock.core.singleton_proxy import proxys
 
 __author__ = 'myh '

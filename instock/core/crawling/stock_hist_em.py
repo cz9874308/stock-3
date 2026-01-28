@@ -1,21 +1,78 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 """
-Date: 2022/6/19 15:26
-Desc: 东方财富网-行情首页-沪深京 A 股
+东方财富 A 股行情数据抓取模块
+
+本模块提供从东方财富网获取沪深京 A 股行情数据的核心功能，
+包括实时行情和历史 K 线数据，是系统数据获取的核心模块之一。
+
+数据来源
+--------
+- 东方财富行情中心: https://quote.eastmoney.com/center/gridlist.html#hs_a_board
+- 历史 K 线接口: http://push2his.eastmoney.com/api/qt/stock/kline/get
+
+核心功能
+--------
+- **stock_zh_a_spot_em**: 获取 A 股全市场实时行情快照
+- **stock_zh_a_hist**: 获取 A 股历史日 K 线数据
+- **stock_zh_a_hist_min_em**: 获取 A 股分钟级 K 线数据
+- **stock_zh_a_hist_pre_min_em**: 获取包含盘前数据的分钟行情
+- **code_id_map_em**: 获取股票代码与市场 ID 的映射关系
+
+数据字段
+--------
+实时行情包含：代码、名称、最新价、涨跌幅、涨跌额、成交量、成交额、
+振幅、换手率、市盈率、市净率、总市值、流通市值等 40+ 个字段。
+
+历史 K 线包含：日期、开盘、收盘、最高、最低、成交量、成交额、
+振幅、涨跌幅、涨跌额、换手率。
+
+复权类型
+--------
+- **qfq**: 前复权（除权时向前调整历史价格）
+- **hfq**: 后复权（除权时向后调整历史价格）
+- **空字符串**: 不复权（原始价格）
+
+使用方式
+--------
+获取实时行情::
+
+    from instock.core.crawling.stock_hist_em import stock_zh_a_spot_em
+    df = stock_zh_a_spot_em()
+    print(f"共获取 {len(df)} 只股票的行情数据")
+
+获取历史 K 线::
+
+    from instock.core.crawling.stock_hist_em import stock_zh_a_hist
+    df = stock_zh_a_hist(
+        symbol="000001",
+        period="daily",
+        start_date="20240101",
+        end_date="20240131",
+        adjust="qfq"  # 前复权
+    )
+    print(df.head())
+
+注意事项
+--------
+- 实时行情接口返回全市场数据，数据量较大
+- 分页获取时自动添加随机延迟，避免触发频率限制
+- code_id_map_em 使用 lru_cache 缓存，避免重复请求
 """
+
+import math
 import random
 import time
+from functools import lru_cache
 
 import pandas as pd
-import math
-from functools import lru_cache
+
 from instock.core.eastmoney_fetcher import eastmoney_fetcher
 
 __author__ = 'myh '
 __date__ = '2025/12/31 '
 
-# 创建全局实例，供所有函数使用
+# 创建全局 HTTP 请求实例
 fetcher = eastmoney_fetcher()
 
 def stock_zh_a_spot_em() -> pd.DataFrame:

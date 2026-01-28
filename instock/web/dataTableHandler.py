@@ -1,14 +1,44 @@
 #!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
+"""
+数据表格处理模块
 
+本模块提供股票数据表格的页面渲染和数据 API 接口。
 
+核心组件
+--------
+- **GetStockHtmlHandler**: 渲染数据表格页面
+- **GetStockDataHandler**: 提供数据表格的 JSON API
+- **MyEncoder**: 自定义 JSON 编码器，处理日期和字节类型
+
+数据格式
+--------
+日期类型转换为 OA Date 格式，用于 SpreadJS 表格控件显示。
+
+路由
+----
+- GET /instock/data?table_name=xxx: 数据表格页面
+- GET /instock/api_data?name=xxx&date=xxx: 数据 API
+
+使用方式
+--------
+访问数据表格页面::
+
+    http://localhost:9988/instock/data?table_name=cn_stock_spot
+
+获取 JSON 数据::
+
+    http://localhost:9988/instock/api_data?name=cn_stock_spot&date=2024-01-15
+"""
+
+import datetime
 import json
 from abc import ABC
+
 from tornado import gen
-# import logging
-import datetime
-import instock.lib.trade_time as trd
+
 import instock.core.singleton_stock_web_module_data as sswmd
+import instock.lib.trade_time as trd
 import instock.web.base as webBase
 
 __author__ = 'myh '

@@ -1,21 +1,55 @@
 #!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
+"""
+K 线形态识别每日任务
 
+本模块负责识别全市场股票的 K 线形态，用于技术分析和交易信号辅助。
 
-import logging
+核心功能
+--------
+- **prepare**: 对全市场股票进行 K 线形态识别
+- **run_check**: 并发检查所有股票的 K 线形态
+
+支持的形态
+----------
+基于 TA-Lib 的 60+ 种 K 线形态，包括：
+- 锤子线、吊颈线
+- 吞没形态
+- 晨星、暮星
+- 十字星等
+
+数据表
+------
+- cn_stock_kline_pattern: K 线形态识别结果表
+
+使用方式
+--------
+命令行运行::
+
+    python klinepattern_data_daily_job.py
+
+注意事项
+--------
+- 使用多线程并发识别
+- 只记录有形态信号的股票（非 0 值）
+"""
+
 import concurrent.futures
-import pandas as pd
+import logging
 import os.path
 import sys
+
+import pandas as pd
 
 cpath_current = os.path.dirname(os.path.dirname(__file__))
 cpath = os.path.abspath(os.path.join(cpath_current, os.pardir))
 sys.path.append(cpath)
-import instock.lib.run_template as runt
+
+import instock.core.pattern.pattern_recognitions as kpr
 import instock.core.tablestructure as tbs
 import instock.lib.database as mdb
+import instock.lib.run_template as runt
 from instock.core.singleton_stock import stock_hist_data
-import instock.core.pattern.pattern_recognitions as kpr
 
 __author__ = 'myh '
 __date__ = '2023/3/10 '

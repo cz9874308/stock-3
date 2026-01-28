@@ -1,21 +1,60 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 """
-Date: 2023/1/4 12:18
-Desc: 东方财富-ETF 行情
-https://quote.eastmoney.com/sh513500.html
+东方财富 ETF 行情数据抓取模块
+
+本模块提供从东方财富网获取 ETF 基金行情数据的功能，包括实时行情和历史 K 线数据。
+
+数据来源
+--------
+- 东方财富网 ETF 行情页面: https://quote.eastmoney.com/center/gridlist.html#fund_etf
+- API 接口: http://push2.eastmoney.com/api/qt/clist/get
+
+核心功能
+--------
+- **fund_etf_spot_em**: 获取 ETF 实时行情（全市场）
+- **fund_etf_hist_em**: 获取 ETF 历史日 K 线数据
+- **fund_etf_hist_min_em**: 获取 ETF 分钟级 K 线数据
+
+数据字段
+--------
+实时行情包含：代码、名称、最新价、涨跌幅、涨跌额、成交量、成交额、
+开盘价、最高价、最低价、昨收、换手率、流通市值、总市值等。
+
+使用方式
+--------
+获取 ETF 实时行情::
+
+    from instock.core.crawling.fund_etf_em import fund_etf_spot_em
+    df = fund_etf_spot_em()
+    print(df.head())
+
+获取 ETF 历史数据::
+
+    from instock.core.crawling.fund_etf_em import fund_etf_hist_em
+    df = fund_etf_hist_em(symbol="513500", period="daily", adjust="qfq")
+    print(df.head())
+
+注意事项
+--------
+- 接口调用有频率限制，批量获取时建议添加延迟
+- 分页获取数据时自动添加 1-1.5 秒的随机延迟
 """
+
+import math
 import random
 import time
 from functools import lru_cache
-import math
+from typing import Dict
+
 import pandas as pd
+
 from instock.core.eastmoney_fetcher import eastmoney_fetcher
 
 __author__ = 'myh '
 __date__ = '2025/12/31 '
 
-# 创建全局实例，供所有函数使用
+# 创建全局 HTTP 请求实例
 fetcher = eastmoney_fetcher()
 
 def fund_etf_spot_em() -> pd.DataFrame:

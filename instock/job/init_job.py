@@ -1,15 +1,51 @@
 #!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
+"""
+数据库初始化任务
 
+本模块负责检查和初始化数据库，是所有数据采集任务的前置步骤。
+
+核心功能
+--------
+- **check_database**: 检查数据库是否存在
+- **create_new_database**: 创建新数据库（如果不存在）
+- **create_new_base_table**: 创建基础表结构
+
+数据库配置
+----------
+数据库连接信息从 instock.lib.database 模块读取，支持环境变量配置。
+
+使用方式
+--------
+命令行运行::
+
+    python init_job.py
+
+作为模块调用::
+
+    from instock.job import init_job
+    init_job.main()
+
+创建的表
+--------
+- cn_stock_attention: 股票关注列表表
+
+注意事项
+--------
+- 首次运行时会自动创建数据库和基础表
+- 如果数据库已存在，会跳过创建步骤
+"""
 
 import logging
-import pymysql
 import os.path
 import sys
+
+import pymysql
 
 cpath_current = os.path.dirname(os.path.dirname(__file__))
 cpath = os.path.abspath(os.path.join(cpath_current, os.pardir))
 sys.path.append(cpath)
+
 import instock.lib.database as mdb
 
 __author__ = 'myh '

@@ -1,18 +1,59 @@
 #!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
+"""
+策略选股每日任务
 
-import logging
+本模块负责运行各种选股策略，筛选出符合条件的股票并存储。
+
+核心功能
+--------
+- **prepare**: 执行指定策略的选股逻辑
+- **run_check**: 并发检查所有股票是否符合策略条件
+
+支持的策略
+----------
+策略定义在 tablestructure.TABLE_CN_STOCK_STRATEGIES 中，包括：
+- 海龟交易法则
+- 放量上涨
+- 平台突破
+- 回踩年线
+- 均线多头
+- 停机坪
+- 高而窄旗形
+- 低 ATR 成长
+- 无大幅回撤
+- 放量跌停
+
+数据表
+------
+每个策略对应一张数据表，存储符合条件的股票
+
+使用方式
+--------
+命令行运行::
+
+    python strategy_data_daily_job.py
+
+注意事项
+--------
+- 使用多线程并发计算
+- 高而窄旗形策略需要龙虎榜数据配合
+"""
+
 import concurrent.futures
-import pandas as pd
+import logging
 import os.path
 import sys
+
+import pandas as pd
 
 cpath_current = os.path.dirname(os.path.dirname(__file__))
 cpath = os.path.abspath(os.path.join(cpath_current, os.pardir))
 sys.path.append(cpath)
-import instock.lib.run_template as runt
+
 import instock.core.tablestructure as tbs
 import instock.lib.database as mdb
+import instock.lib.run_template as runt
 from instock.core.singleton_stock import stock_hist_data
 from instock.core.stockfetch import fetch_stock_top_entity_data
 

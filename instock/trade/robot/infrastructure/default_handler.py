@@ -1,14 +1,48 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+日志处理模块
+
+本模块提供交易系统的日志处理功能，基于 logbook 库实现。
+
+核心组件
+--------
+- **DefaultLogHandler**: 默认日志处理器，支持控制台和文件输出
+
+日志级别
+--------
+从高到低：CRITICAL > ERROR > WARNING > NOTICE > INFO > DEBUG > TRACE > NOTSET
+
+使用方式
+--------
+::
+
+    from instock.trade.robot.infrastructure.default_handler import DefaultLogHandler
+
+    # 输出到控制台
+    log = DefaultLogHandler(name='MyLog', log_type='stdout')
+    log.info('Hello, World!')
+
+    # 输出到文件
+    log = DefaultLogHandler(name='MyLog', log_type='file', filepath='app.log')
+    log.error('Something went wrong!')
+
+注意事项
+--------
+- 日志时间使用本地时区
+- 文件日志会自动创建目录
+"""
 
 import os
 import sys
+
 import logbook
-from logbook import Logger, StreamHandler, FileHandler
+from logbook import FileHandler, Logger, StreamHandler
 
 __author__ = 'myh '
 __date__ = '2023/4/10 '
 
+# 使用本地时区格式化日志时间
 logbook.set_datetime_format('local')
 
 

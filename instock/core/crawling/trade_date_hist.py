@@ -1,15 +1,48 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 """
-Date: 2022/10/1 19:27
-Desc: 新浪财经-交易日历
-https://finance.sina.com.cn/realstock/company/klc_td_sh.txt
-此处可以用来更新 calendar.json 文件，注意末尾没有 "," 号
+A 股交易日历数据抓取模块
+
+本模块提供从新浪财经获取 A 股历史交易日历的功能，用于判断某一天是否为交易日。
+
+数据来源
+--------
+- 新浪财经交易日历: https://finance.sina.com.cn/realstock/company/klc_td_sh.txt
+
+核心功能
+--------
+- **tool_trade_date_hist_sina**: 获取全部历史交易日列表
+
+数据说明
+--------
+- 数据经过 JavaScript 加密，需要通过 py_mini_racer 执行 JS 解密代码
+- 返回的 DataFrame 包含一列 'trade_date'，为 datetime.date 类型
+- 已知数据缺失：1992-05-04 是交易日但原始数据缺失，本模块已补充
+
+使用方式
+--------
+获取交易日历::
+
+    from instock.core.crawling.trade_date_hist import tool_trade_date_hist_sina
+    df = tool_trade_date_hist_sina()
+    trade_dates = set(df['trade_date'].tolist())
+
+    # 判断某天是否为交易日
+    import datetime
+    is_trade_day = datetime.date(2024, 1, 2) in trade_dates
+
+注意事项
+--------
+- 首次调用需要执行 JS 解密，可能稍慢
+- 建议将结果缓存以提高性能
 """
+
 import datetime
+
 import pandas as pd
 import requests
 from py_mini_racer import MiniRacer
+
 from instock.core.singleton_proxy import proxys
 
 hk_js_decode = """

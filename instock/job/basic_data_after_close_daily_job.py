@@ -1,5 +1,35 @@
 #!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
+"""
+收盘后数据采集任务
+
+本模块负责采集只有在收盘后才能获取的数据，如大宗交易、尾盘抢筹等。
+
+采集内容
+--------
+- **大宗交易**: 当日大宗交易成交数据
+- **尾盘抢筹**: 尾盘集合竞价资金流向
+
+数据表
+------
+- cn_stock_blocktrade: 大宗交易数据表
+- cn_stock_chip_race_end: 尾盘抢筹数据表
+
+执行时机
+--------
+必须在交易日收盘后执行（15:00 之后），否则数据不完整。
+
+使用方式
+--------
+命令行运行::
+
+    python basic_data_after_close_daily_job.py
+
+注意事项
+--------
+- 大宗交易数据在 15:30 后才能获取
+- 尾盘抢筹数据在收盘后即可获取
+"""
 
 import logging
 import os.path
@@ -8,10 +38,11 @@ import sys
 cpath_current = os.path.dirname(os.path.dirname(__file__))
 cpath = os.path.abspath(os.path.join(cpath_current, os.pardir))
 sys.path.append(cpath)
-import instock.lib.run_template as runt
+
+import instock.core.stockfetch as stf
 import instock.core.tablestructure as tbs
 import instock.lib.database as mdb
-import instock.core.stockfetch as stf
+import instock.lib.run_template as runt
 
 __author__ = 'myh '
 __date__ = '2023/3/10 '

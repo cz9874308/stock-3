@@ -1,20 +1,67 @@
 #!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
+"""
+技术指标数据每日采集任务
 
+本模块负责计算全市场股票的技术指标，并根据指标筛选出买入/卖出信号。
 
-import logging
+核心功能
+--------
+- **prepare**: 计算全市场股票的技术指标并存储
+- **guess_buy**: 根据指标筛选买入信号股票
+- **guess_sell**: 根据指标筛选卖出信号股票
+
+数据表
+------
+- cn_stock_indicators: 股票技术指标表
+- cn_stock_indicators_buy: 买入信号股票表
+- cn_stock_indicators_sell: 卖出信号股票表
+
+买入信号条件
+------------
+- KDJ_K >= 80, KDJ_D >= 70, KDJ_J >= 100
+- RSI_6 >= 80
+- CCI >= 100
+- CR >= 300
+- WR_6 >= -20
+- VR >= 160
+
+卖出信号条件
+------------
+- KDJ_K < 20, KDJ_D < 30, KDJ_J < 10
+- RSI_6 < 20
+- CCI < -100
+- CR < 40
+- WR_6 < -80
+- VR < 40
+
+使用方式
+--------
+命令行运行::
+
+    python indicators_data_daily_job.py
+
+注意事项
+--------
+- 使用多线程并发计算，默认 40 个工作线程
+- 每次执行会先删除当日旧数据
+"""
+
 import concurrent.futures
-import pandas as pd
+import logging
 import os.path
 import sys
+
+import pandas as pd
 
 cpath_current = os.path.dirname(os.path.dirname(__file__))
 cpath = os.path.abspath(os.path.join(cpath_current, os.pardir))
 sys.path.append(cpath)
-import instock.lib.run_template as runt
+
+import instock.core.indicator.calculate_indicator as idr
 import instock.core.tablestructure as tbs
 import instock.lib.database as mdb
-import instock.core.indicator.calculate_indicator as idr
+import instock.lib.run_template as runt
 from instock.core.singleton_stock import stock_hist_data
 
 __author__ = 'myh '

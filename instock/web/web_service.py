@@ -1,5 +1,44 @@
 #!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
+"""
+Web 服务主入口
+
+本模块是 InStock 股票分析系统的 Web 服务入口，基于 Tornado 框架构建，
+提供股票数据展示、技术指标可视化、股票关注等功能。
+
+技术栈
+------
+- **Tornado**: 高性能异步 Web 框架
+- **Bootstrap**: 前端 UI 框架
+- **Bokeh**: 数据可视化库（用于 K 线图）
+- **SpreadJS**: 表格控件（用于数据表格展示）
+
+路由配置
+--------
+- /: 首页
+- /instock/data: 数据表格页面
+- /instock/api_data: 数据 API 接口
+- /instock/data/indicators: 技术指标可视化页面
+- /instock/control/attention: 股票关注操作接口
+
+启动方式
+--------
+命令行运行::
+
+    python web_service.py
+
+Docker 运行::
+
+    docker-compose up -d
+
+访问地址
+--------
+默认端口 9988，访问 http://localhost:9988/
+
+日志文件
+--------
+日志保存在 `instock/web/log/stock_web.log`
+"""
 
 import logging
 import os.path
@@ -16,17 +55,23 @@ from tornado import gen
 cpath_current = os.path.dirname(os.path.dirname(__file__))
 cpath = os.path.abspath(os.path.join(cpath_current, os.pardir))
 sys.path.append(cpath)
+
+# 配置日志
 log_path = os.path.join(cpath_current, 'log')
 if not os.path.exists(log_path):
     os.makedirs(log_path)
-logging.basicConfig(format='%(asctime)s %(message)s', filename=os.path.join(log_path, 'stock_web.log'))
+logging.basicConfig(
+    format='%(asctime)s %(message)s',
+    filename=os.path.join(log_path, 'stock_web.log')
+)
 logging.getLogger().setLevel(logging.ERROR)
-import instock.lib.torndb as torndb
+
 import instock.lib.database as mdb
+import instock.lib.torndb as torndb
 import instock.lib.version as version
-import instock.web.dataTableHandler as dataTableHandler
-import instock.web.dataIndicatorsHandler as dataIndicatorsHandler
 import instock.web.base as webBase
+import instock.web.dataIndicatorsHandler as dataIndicatorsHandler
+import instock.web.dataTableHandler as dataTableHandler
 
 __author__ = 'myh '
 __date__ = '2023/3/10 '

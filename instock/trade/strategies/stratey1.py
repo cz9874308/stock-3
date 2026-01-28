@@ -1,9 +1,42 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+交易策略示例 1
 
-import os.path
+本模块是交易策略的示例实现，展示了如何实现买卖逻辑。
+
+策略功能
+--------
+- 在指定时间（14:54:30）执行交易
+- 演示买入和卖出操作
+- 查询持仓余额
+
+策略配置
+--------
+- 触发时间: 14:54:30
+- 触发方式: 时刻事件
+
+核心方法
+--------
+- strategy(): 包含具体的交易逻辑
+
+使用方式
+--------
+1. 修改 buy_stock 和 sell_stock 列表定义交易目标
+2. 在 strategy() 方法中编写选股逻辑
+3. 将文件放入 strategies 目录
+
+注意事项
+--------
+- 这只是一个示例，实际使用需要完善选股逻辑
+- 买卖操作会真实执行，请谨慎测试
+"""
+
 import datetime as dt
+import os.path
+
 from dateutil import tz
+
 from instock.trade.robot.infrastructure.default_handler import DefaultLogHandler
 from instock.trade.robot.infrastructure.strategy_template import StrategyTemplate
 

@@ -1,20 +1,58 @@
 #!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
+"""
+策略回测每日任务
 
+本模块负责对历史选股结果进行回测，计算买入后的收益率统计。
 
-import logging
+核心功能
+--------
+- **prepare**: 遍历所有策略表，对未回测的记录进行回测
+- **process**: 处理单个策略表的回测
+- **run_check**: 并发计算多只股票的收益率
+
+回测逻辑
+--------
+1. 查找各策略表中尚未回测的记录（回测字段为 NULL）
+2. 获取这些股票从买入日开始的历史数据
+3. 计算买入后 N 日的累计收益率
+4. 更新回测结果到对应的策略表
+
+回测表
+------
+回测结果更新到以下表的回测字段：
+- cn_stock_indicators_buy
+- cn_stock_indicators_sell
+- 各策略选股结果表
+
+使用方式
+--------
+命令行运行::
+
+    python backtest_data_daily_job.py
+
+注意事项
+--------
+- 使用多线程并发计算
+- 只回测今日之前的历史记录
+- 已回测的记录不会重复计算
+"""
+
 import concurrent.futures
-import pandas as pd
+import datetime
+import logging
 import os.path
 import sys
-import datetime
+
+import pandas as pd
 
 cpath_current = os.path.dirname(os.path.dirname(__file__))
 cpath = os.path.abspath(os.path.join(cpath_current, os.pardir))
 sys.path.append(cpath)
+
+import instock.core.backtest.rate_stats as rate
 import instock.core.tablestructure as tbs
 import instock.lib.database as mdb
-import instock.core.backtest.rate_stats as rate
 from instock.core.singleton_stock import stock_hist_data
 
 __author__ = 'myh '

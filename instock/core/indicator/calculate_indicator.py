@@ -1,9 +1,79 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+技术指标计算模块
+
+本模块提供基于 TA-Lib 的股票技术指标计算功能，支持计算 40+ 种常用技术指标，
+是量化分析和策略开发的核心组件。
+
+依赖库
+------
+- **TA-Lib**: 技术分析库，提供底层指标计算
+- **NumPy**: 数值计算
+- **Pandas**: 数据处理
+
+支持的技术指标
+--------------
+趋势指标：
+- MACD (移动平均收敛散度)
+- TRIX (三重指数平滑移动平均)
+- DMA (平均线差)
+- DMI/ADX (趋向指标)
+- Supertrend (超级趋势)
+- SAR (抛物线指标)
+
+震荡指标：
+- KDJ (随机指标)
+- RSI (相对强弱指标)
+- CCI (顺势指标)
+- WR (威廉指标)
+- STOCHRSI (随机相对强弱)
+- MFI (资金流量指标)
+
+波动指标：
+- BOLL (布林带)
+- ATR (平均真实波幅)
+
+成交量指标：
+- OBV (能量潮)
+- VR (成交量比率)
+- VOL (成交量均线)
+
+其他指标：
+- CR (带状能量线)
+- PSY (心理线)
+- BIAS (乖离率)
+- AR/BR (人气/意愿指标)
+- EMV (简易波动指标)
+
+使用方式
+--------
+计算单只股票的所有指标::
+
+    from instock.core.indicator.calculate_indicator import get_indicators
+    df_with_indicators = get_indicators(stock_data, end_date="2024-01-15")
+
+获取指标数据用于策略分析::
+
+    from instock.core.indicator.calculate_indicator import get_indicator
+    indicator_row = get_indicator(
+        code_name=("2024-01-15", "000001", "平安银行"),
+        data=hist_data,
+        stock_column=indicator_columns
+    )
+
+注意事项
+--------
+- 指标计算需要足够的历史数据（建议 120 天以上）
+- NaN 和 Inf 值会被自动替换为 0
+- 部分指标与 stockstats 库的计算方法有差异，详见代码注释
+"""
 
 import logging
-import pandas as pd
+from typing import Optional
+
 import numpy as np
+import pandas as pd
 import talib as tl
 
 __author__ = 'myh '

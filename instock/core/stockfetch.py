@@ -1,25 +1,85 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+股票数据统一获取模块
 
+本模块是 InStock 系统的数据获取核心层，提供统一的接口从各个数据源
+获取股票相关数据，并进行必要的预处理和过滤。
+
+核心概念
+--------
+- **统一数据入口**: 整合多个爬虫模块，提供统一的数据获取接口
+- **数据过滤**: 提供 A 股筛选、ST 股过滤、停牌股过滤等功能
+- **缓存机制**: 历史数据支持本地文件缓存，提高获取效率
+
+主要功能
+--------
+数据获取函数：
+- **fetch_stocks**: 获取当日全市场股票行情
+- **fetch_stock_hist**: 获取单只股票的历史 K 线数据
+- **fetch_stocks_trade_date**: 获取交易日历
+- **fetch_etf_spot**: 获取 ETF 实时行情
+- **fetch_stock_selection**: 获取选股器数据
+- **fetch_stock_lhb**: 获取龙虎榜数据
+- **fetch_stock_fund_flow**: 获取资金流向数据
+
+数据过滤函数：
+- **is_a_stock**: 判断是否为 A 股主板/中小板/创业板
+- **is_not_st**: 判断是否非 ST 股
+- **is_open**: 判断股票是否在交易中
+
+A 股代码规则
+------------
+| 代码开头 | 市场 | 说明 |
+|----------|------|------|
+| 600/601/603/605 | 上证主板 | 大盘股 |
+| 688 | 上证科创板 | 科技创新板 |
+| 000/001/002/003 | 深证主板 | 主板 + 中小板 |
+| 300/301 | 深证创业板 | 成长型企业 |
+| 430/83/87 | 北交所 | 新三板精选层转板 |
+
+使用方式
+--------
+获取当日行情::
+
+    from instock.core.stockfetch import fetch_stocks
+    import datetime
+    df = fetch_stocks(datetime.date.today())
+    print(f"获取到 {len(df)} 只股票")
+
+获取历史数据::
+
+    from instock.core.stockfetch import fetch_stock_hist
+    df = fetch_stock_hist(('2024-01-15', '000001', '平安银行'))
+
+注意事项
+--------
+- 历史数据默认缓存在 instock/cache/hist/ 目录
+- 当日盘中数据不会缓存，收盘后数据会缓存
+"""
+
+import datetime
 import logging
 import os.path
-import datetime
+from typing import Optional, Tuple, Set
+
 import numpy as np
 import pandas as pd
 import talib as tl
-import instock.core.tablestructure as tbs
-import instock.lib.trade_time as trd
-import instock.core.crawling.trade_date_hist as tdh
+
 import instock.core.crawling.fund_etf_em as fee
-import instock.core.crawling.stock_selection as sst
+import instock.core.crawling.stock_chip_race as scr
+import instock.core.crawling.stock_dzjy_em as sde
+import instock.core.crawling.stock_fhps_em as sfe
+import instock.core.crawling.stock_fund_em as sff
+import instock.core.crawling.stock_hist_em as she
 import instock.core.crawling.stock_lhb_em as sle
 import instock.core.crawling.stock_lhb_sina as sls
-import instock.core.crawling.stock_dzjy_em as sde
-import instock.core.crawling.stock_hist_em as she
-import instock.core.crawling.stock_fund_em as sff
-import instock.core.crawling.stock_fhps_em as sfe
-import instock.core.crawling.stock_chip_race as scr
 import instock.core.crawling.stock_limitup_reason as slr
+import instock.core.crawling.stock_selection as sst
+import instock.core.crawling.trade_date_hist as tdh
+import instock.core.tablestructure as tbs
+import instock.lib.trade_time as trd
 
 __author__ = 'myh '
 __date__ = '2023/3/10 '

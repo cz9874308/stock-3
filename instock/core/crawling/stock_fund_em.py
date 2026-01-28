@@ -1,21 +1,66 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 """
-Date: 2023/5/16 15:30
-Desc: 东方财富网-数据中心-资金流向
-https://data.eastmoney.com/zjlx/detail.html
+东方财富资金流向数据抓取模块
+
+本模块提供从东方财富网数据中心获取个股和板块资金流向数据的功能，
+是分析主力资金动向的重要数据来源。
+
+数据来源
+--------
+- 东方财富资金流向: https://data.eastmoney.com/zjlx/detail.html
+- 板块资金流向: https://data.eastmoney.com/bkzj/hy.html
+
+核心功能
+--------
+- **stock_individual_fund_flow_rank**: 获取个股资金流向排名
+- **stock_sector_fund_flow_rank**: 获取板块资金流向排名
+
+资金分类说明
+------------
+- **超大单**: 单笔成交金额 >= 100 万
+- **大单**: 单笔成交金额 20-100 万
+- **中单**: 单笔成交金额 4-20 万
+- **小单**: 单笔成交金额 < 4 万
+- **主力**: 超大单 + 大单
+
+时间维度
+--------
+支持查询：今日、3日、5日、10日 的资金流向数据
+
+使用方式
+--------
+获取个股资金流向排名::
+
+    from instock.core.crawling.stock_fund_em import stock_individual_fund_flow_rank
+    df = stock_individual_fund_flow_rank(indicator="5日")
+    print(df.head())
+
+获取板块资金流向::
+
+    from instock.core.crawling.stock_fund_em import stock_sector_fund_flow_rank
+    df = stock_sector_fund_flow_rank(indicator="今日", sector_type="行业资金流")
+    print(df.head())
+
+注意事项
+--------
+- 资金流向数据仅供参考，不构成投资建议
+- 接口调用有频率限制，批量获取时建议添加延迟
 """
+
 import json
+import math
 import random
 import time
-import math
+
 import pandas as pd
+
 from instock.core.eastmoney_fetcher import eastmoney_fetcher
 
 __author__ = 'myh '
 __date__ = '2025/12/31 '
 
-# 创建全局实例，供所有函数使用
+# 创建全局 HTTP 请求实例
 fetcher = eastmoney_fetcher()
 
 def stock_individual_fund_flow_rank(indicator: str = "5日") -> pd.DataFrame:

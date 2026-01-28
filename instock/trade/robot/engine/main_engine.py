@@ -1,5 +1,42 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+交易主引擎模块
+
+本模块实现了自动交易系统的主引擎，负责协调事件引擎、时钟引擎、
+策略加载和券商交易接口。
+
+核心功能
+--------
+- **策略管理**: 动态加载、重载、卸载交易策略
+- **事件协调**: 连接事件引擎与策略的事件处理
+- **生命周期管理**: 优雅启动和关闭各子系统
+- **交易接口**: 通过 easytrader 对接券商
+
+类结构
+------
+MainEngine
+    主引擎类，核心组件包括：
+    - event_engine: 事件驱动引擎
+    - clock_engine: 时钟推送引擎
+    - user: easytrader 交易接口
+    - strategies: 已加载的策略字典
+
+使用方式
+--------
+启动交易引擎::
+
+    from instock.trade.robot.engine.main_engine import MainEngine
+
+    engine = MainEngine(broker='gf_client', need_data='config.json')
+    engine.load_strategy()
+    engine.start()
+
+注意事项
+--------
+- 策略热重载功能仅建议在开发环境使用
+- 关闭进程时会自动调用策略的 shutdown 方法
+"""
 
 import importlib
 import os
@@ -9,10 +46,12 @@ import sys
 import threading
 import time
 from collections import OrderedDict
-from threading import Thread, Lock
+from threading import Lock, Thread
+
 import easytrader
-from instock.trade.robot.engine.event_engine import EventEngine
+
 from instock.trade.robot.engine.clock_engine import ClockEngine
+from instock.trade.robot.engine.event_engine import EventEngine
 from instock.trade.robot.infrastructure.default_handler import DefaultLogHandler
 
 __author__ = 'myh '

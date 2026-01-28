@@ -1,20 +1,67 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 """
-Date: 2022/5/16 15:31
-Desc: 东方财富网-数据中心-大宗交易-市场统计
-http://data.eastmoney.com/dzjy/dzjy_sctj.aspx
+东方财富大宗交易数据抓取模块
+
+本模块提供从东方财富网数据中心获取大宗交易相关数据的功能，用于分析
+机构和大股东的交易动向。
+
+数据来源
+--------
+- 东方财富大宗交易: http://data.eastmoney.com/dzjy/dzjy_sctj.aspx
+
+核心功能
+--------
+- **stock_dzjy_sctj**: 获取大宗交易市场统计
+- **stock_dzjy_mrmx**: 获取大宗交易每日明细
+- **stock_dzjy_mrtj**: 获取大宗交易每日统计
+- **stock_dzjy_hygtj**: 获取活跃 A 股统计
+- **stock_dzjy_hyyybtj**: 获取活跃营业部统计
+- **stock_dzjy_yybph**: 获取营业部排行
+
+大宗交易规则
+------------
+- **A股**: 单笔交易数量 >= 30 万股，或交易金额 >= 200 万元
+- **B股**: 单笔交易数量 >= 5 万股，或交易金额 >= 50 万元（港币/美元）
+- 成交价格在当日涨跌幅限制内协商确定
+- 成交价与收盘价的差异形成折价率/溢价率
+
+数据字段说明
+------------
+- **折价率**: (成交价 - 收盘价) / 收盘价，负值表示折价成交
+- **溢价率**: (成交价 - 收盘价) / 收盘价，正值表示溢价成交
+
+使用方式
+--------
+获取大宗交易市场统计::
+
+    from instock.core.crawling.stock_dzjy_em import stock_dzjy_sctj
+    df = stock_dzjy_sctj()
+    print(df.head())
+
+获取每日大宗交易明细::
+
+    from instock.core.crawling.stock_dzjy_em import stock_dzjy_mrmx
+    df = stock_dzjy_mrmx(symbol='A股', start_date='20240101', end_date='20240115')
+    print(df.head())
+
+注意事项
+--------
+- 大宗交易数据通常在收盘后更新
+- 折价交易可能暗示减持意愿，需结合基本面分析
 """
+
 import random
 import time
 
 import pandas as pd
+
 from instock.core.eastmoney_fetcher import eastmoney_fetcher
 
 __author__ = 'myh '
 __date__ = '2025/12/31 '
 
-# 创建全局实例，供所有函数使用
+# 创建全局 HTTP 请求实例
 fetcher = eastmoney_fetcher()
 
 def stock_dzjy_sctj() -> pd.DataFrame:

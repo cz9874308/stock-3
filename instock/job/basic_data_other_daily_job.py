@@ -1,19 +1,58 @@
 #!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
+"""
+其他基础数据每日采集任务
 
-import logging
+本模块负责采集各类股票市场辅助数据，包括龙虎榜、资金流向、分红配送等。
+
+采集内容
+--------
+- **龙虎榜数据**: 东方财富和新浪两个数据源
+- **资金流向**: 个股资金流向和行业/概念板块资金流向
+- **分红配送**: 股票分红送转方案
+- **早盘抢筹**: 早盘集合竞价资金流向
+- **涨停原因**: 涨停股票的原因分类
+- **基本面选股**: 根据 PE/PB/ROE 筛选优质股票
+
+数据表
+------
+- cn_stock_lhb: 龙虎榜数据表
+- cn_stock_top: 龙虎榜数据表（新浪）
+- cn_stock_fund_flow: 个股资金流向表
+- cn_stock_fund_flow_industry: 行业资金流向表
+- cn_stock_fund_flow_concept: 概念资金流向表
+- cn_stock_bonus: 分红配送表
+- cn_stock_chip_race_open: 早盘抢筹表
+- cn_stock_limitup_reason: 涨停原因表
+- cn_stock_spot_buy: 基本面选股表
+
+使用方式
+--------
+命令行运行::
+
+    python basic_data_other_daily_job.py
+
+注意事项
+--------
+- 部分数据需要在收盘后才能获取（如龙虎榜）
+- 资金流向数据包含多个时间周期（今日、5日、10日等）
+"""
+
 import concurrent.futures
+import logging
 import os.path
 import sys
+
 import pandas as pd
 
 cpath_current = os.path.dirname(os.path.dirname(__file__))
 cpath = os.path.abspath(os.path.join(cpath_current, os.pardir))
 sys.path.append(cpath)
-import instock.lib.run_template as runt
+
+import instock.core.stockfetch as stf
 import instock.core.tablestructure as tbs
 import instock.lib.database as mdb
-import instock.core.stockfetch as stf
+import instock.lib.run_template as runt
 
 __author__ = 'myh '
 __date__ = '2023/3/10 '

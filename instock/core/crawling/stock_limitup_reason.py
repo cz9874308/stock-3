@@ -1,15 +1,57 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 """
-Date: 2025/2/26 12:18
-Desc: 同花顺涨停原因
-http://zx.10jqka.com.cn/event/api/getharden/date/2025-02-21/orderby/date/orderway/desc/charset/GBK/
+同花顺涨停原因数据抓取模块
+
+本模块提供从同花顺获取涨停股票及其涨停原因的功能，是分析涨停板行情、
+热点题材的重要数据来源。
+
+数据来源
+--------
+- 同花顺涨停原因: http://zx.10jqka.com.cn/event/api/getharden/
+
+核心功能
+--------
+- **stock_limitup_reason**: 获取指定日期的涨停股票及涨停原因
+
+涨停原因分类
+------------
+涨停原因通常包括：
+- 业绩预增、业绩大增
+- 政策利好、行业利好
+- 热门题材（如 AI、新能源、芯片等）
+- 重大重组、资产注入
+- 超跌反弹、技术形态等
+
+数据字段
+--------
+包含：代码、名称、涨停原因、最新价、涨跌幅、换手率、成交额等。
+
+使用方式
+--------
+获取涨停原因::
+
+    from instock.core.crawling.stock_limitup_reason import stock_limitup_reason
+    df = stock_limitup_reason(date="2025-02-27")
+    print(df.head())
+
+    # 按涨停原因分组统计
+    reason_counts = df.groupby('原因').size().sort_values(ascending=False)
+    print(reason_counts.head(10))
+
+注意事项
+--------
+- 涨停原因由同花顺编辑团队整理，可能存在主观判断
+- 数据在收盘后更新
+- 部分字段可能为空（如新股上市时）
 """
 
+import re
+
+import numpy as np
 import pandas as pd
 import requests
-import re
-import numpy as np
+
 from instock.core.singleton_proxy import proxys
 
 __author__ = 'myh '

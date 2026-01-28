@@ -1,9 +1,35 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+新股申购策略示例
 
-import os.path
+本模块是新股自动申购策略的示例实现，展示了如何创建交易策略。
+
+策略功能
+--------
+- 每天上午 10:00 自动申购新股
+- 使用 easytrader 的 auto_ipo() 方法
+
+策略配置
+--------
+- 触发时间: 10:00
+- 触发方式: 时刻事件
+
+使用方式
+--------
+将此文件放入 strategies 目录，主引擎会自动加载。
+
+注意事项
+--------
+- 需要配置正确的券商账号
+- 新股申购需要在申购日才能成功
+"""
+
 import datetime as dt
+import os.path
+
 from dateutil import tz
+
 from instock.trade.robot.infrastructure.default_handler import DefaultLogHandler
 from instock.trade.robot.infrastructure.strategy_template import StrategyTemplate
 

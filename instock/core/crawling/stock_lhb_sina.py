@@ -1,16 +1,44 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 """
-Date: 2024/5/10 00:00
-Desc: 新浪财经-龙虎榜
-https://vip.stock.finance.sina.com.cn/q/go.php/vInvestConsult/kind/lhb/index.phtml
+新浪财经龙虎榜数据抓取模块
+
+本模块提供从新浪财经获取龙虎榜数据的功能，作为东方财富龙虎榜数据的补充来源。
+
+数据来源
+--------
+- 新浪财经龙虎榜: https://vip.stock.finance.sina.com.cn/q/go.php/vInvestConsult/kind/lhb/index.phtml
+
+核心功能
+--------
+- **stock_lhb_detail_daily_sina**: 获取指定日期的龙虎榜每日详情
+
+数据特点
+--------
+- 新浪财经龙虎榜数据与东方财富类似，但展示格式略有不同
+- 按上榜原因（指标）分组展示数据
+
+使用方式
+--------
+获取龙虎榜每日详情::
+
+    from instock.core.crawling.stock_lhb_sina import stock_lhb_detail_daily_sina
+    df = stock_lhb_detail_daily_sina(date="20240222")
+    print(df.head())
+
+注意事项
+--------
+- 新浪财经接口可能有访问频率限制
+- 建议与东方财富数据交叉验证
 """
 
 from io import StringIO
+
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from tqdm import tqdm
+
 from instock.core.singleton_proxy import proxys
 
 

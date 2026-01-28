@@ -1,21 +1,59 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 """
-Date: 2023/4/7 15:22
-Desc: 东方财富网-数据中心-年报季报-分红送配
-https://data.eastmoney.com/yjfp/
+东方财富分红送配数据抓取模块
+
+本模块提供从东方财富网数据中心获取上市公司分红送配方案的功能，
+是分析股息收益和投资回报的重要数据来源。
+
+数据来源
+--------
+- 东方财富分红送配: https://data.eastmoney.com/yjfp/
+
+核心功能
+--------
+- **stock_fhps_em**: 获取指定报告期的分红送配数据
+
+分红送配术语说明
+----------------
+- **送股**: 用资本公积金转增股本，股东无需缴税
+- **转股**: 用未分配利润送股，股东需缴纳红利税
+- **派息**: 现金分红，每股派发现金（含税）
+- **股息率**: 每股派息 / 股价 × 100%
+- **除权除息日**: 分红方案实施日，股价会相应调整
+
+数据字段
+--------
+包含：代码、名称、送转比例、现金分红比例、股息率、每股收益、
+每股净资产、预案公告日、股权登记日、除权除息日、方案进度等。
+
+使用方式
+--------
+获取年报分红方案::
+
+    from instock.core.crawling.stock_fhps_em import stock_fhps_em
+    df = stock_fhps_em(date="20231231")
+    print(df[df['现金分红-股息率'] > 3].head())  # 筛选股息率 > 3% 的股票
+
+注意事项
+--------
+- 分红方案从预案到实施需要经过股东大会审议
+- 关注"方案进度"字段判断方案是否已实施
+- 股息率计算基于当时股价，实际收益需考虑买入价
 """
+
 import random
 import time
 
 import pandas as pd
 from tqdm import tqdm
+
 from instock.core.eastmoney_fetcher import eastmoney_fetcher
 
 __author__ = 'myh '
 __date__ = '2025/12/31 '
 
-# 创建全局实例，供所有函数使用
+# 创建全局 HTTP 请求实例
 fetcher = eastmoney_fetcher()
 
 def stock_fhps_em(date: str = "20231231") -> pd.DataFrame:

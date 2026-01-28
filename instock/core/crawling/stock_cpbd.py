@@ -1,14 +1,47 @@
 # -*- coding:utf-8 -*-
 # !/usr/bin/env python
+"""
+东方财富个股操盘必读数据抓取模块
+
+本模块提供从东方财富网获取个股"操盘必读"综合信息的功能，
+包含股票的核心财务指标和所属板块等信息。
+
+数据来源
+--------
+- 东方财富个股操盘必读: https://emweb.securities.eastmoney.com/PC_HSF10/OperationsRequired/
+
+核心功能
+--------
+- **stock_cpbd_em**: 获取个股的操盘必读核心数据
+
+数据字段
+--------
+包含财务指标：每股收益、每股净资产、市盈率、市净率、总市值、流通市值等。
+以及所属行业板块、概念板块等信息。
+
+使用方式
+--------
+获取个股操盘必读::
+
+    from instock.core.crawling.stock_cpbd import stock_cpbd_em
+    df = stock_cpbd_em(symbol="688041")
+    print(df)
+
+注意事项
+--------
+- 返回的是单只股票的综合信息
+- 字段定义来自 tablestructure.TABLE_CN_STOCK_CPBD
+"""
 
 import pandas as pd
+
 import instock.core.tablestructure as tbs
 from instock.core.eastmoney_fetcher import eastmoney_fetcher
 
 __author__ = 'myh '
 __date__ = '2025/12/31 '
 
-# 创建全局实例，供所有函数使用
+# 创建全局 HTTP 请求实例
 fetcher = eastmoney_fetcher()
 
 def stock_cpbd_em(symbol: str = "688041") -> pd.DataFrame:

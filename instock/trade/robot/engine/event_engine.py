@@ -1,9 +1,48 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+事件驱动引擎模块
 
+本模块实现了事件驱动架构的核心组件，用于解耦系统各模块之间的通信。
+
+核心概念
+--------
+- **Event**: 事件对象，包含事件类型和数据
+- **EventEngine**: 事件引擎，管理事件队列和处理函数
+
+设计模式
+--------
+采用发布-订阅模式（Pub-Sub）：
+1. 模块通过 register() 订阅感兴趣的事件类型
+2. 其他模块通过 put() 发布事件
+3. 事件引擎异步分发事件给对应的处理函数
+
+使用方式
+--------
+::
+
+    from instock.trade.robot.engine.event_engine import EventEngine, Event
+
+    # 创建引擎
+    engine = EventEngine()
+    engine.start()
+
+    # 注册事件处理函数
+    def on_tick(event):
+        print(event.data)
+    engine.register('tick', on_tick)
+
+    # 发布事件
+    engine.put(Event('tick', data={'price': 10.5}))
+
+注意事项
+--------
+- 事件处理函数在独立线程中执行
+- 长时间运行的处理函数不会阻塞其他事件
+"""
 
 from collections import defaultdict
-from queue import Queue, Empty
+from queue import Empty, Queue
 from threading import Thread
 
 __author__ = 'myh '

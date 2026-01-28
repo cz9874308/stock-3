@@ -1,12 +1,61 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+时钟推送引擎模块
+
+本模块实现了交易系统的时钟推送功能，用于定时触发交易策略的时间事件。
+
+核心概念
+--------
+- **ClockEngine**: 时钟引擎，周期性推送时间事件
+- **ClockMomentHandler**: 时刻事件处理器（如开盘、收盘）
+- **ClockIntervalHandler**: 间隔事件处理器（如每分钟、每 5 分钟）
+
+内置事件
+--------
+时刻事件：
+- open: 开盘 (9:00)
+- pause: 午休 (11:30)
+- continue: 下午开盘 (13:00)
+- close: 收盘 (15:00)
+
+间隔事件：
+- 0.5 分钟 (30 秒)
+- 1 分钟
+- 5 分钟
+- 15 分钟
+- 30 分钟
+- 60 分钟
+
+使用方式
+--------
+::
+
+    from instock.trade.robot.engine.clock_engine import ClockEngine
+
+    clock_engine = ClockEngine(event_engine)
+    clock_engine.start()
+
+    # 注册自定义时刻事件
+    clock_engine.register_moment('my_event', datetime.time(10, 30))
+
+    # 注册自定义间隔事件
+    clock_engine.register_interval(3)  # 每 3 分钟
+
+注意事项
+--------
+- 非交易日时钟事件会暂停
+- 时刻事件支持 makeup 参数，用于补发错过的事件
+"""
 
 import datetime
+import time
 from collections import deque
 from threading import Thread
+
 import arrow
 from dateutil import tz
-import time
+
 import instock.lib.trade_time as etime
 from instock.trade.robot.engine.event_engine import Event
 

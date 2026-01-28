@@ -1,21 +1,68 @@
 # -*- coding:utf-8 -*-
 # !/usr/bin/env python
 """
-Date: 2022/3/15 17:32
-Desc: 东方财富网-数据中心-龙虎榜单
-https://data.eastmoney.com/stock/tradedetail.html
+东方财富龙虎榜数据抓取模块
+
+本模块提供从东方财富网数据中心获取龙虎榜相关数据的功能，是跟踪主力机构
+和游资动向的重要数据来源。
+
+数据来源
+--------
+- 东方财富龙虎榜单: https://data.eastmoney.com/stock/tradedetail.html
+- 机构买卖统计: https://data.eastmoney.com/stock/jgmmtj.html
+- 营业部排行: https://data.eastmoney.com/stock/yybph.html
+
+核心功能
+--------
+- **stock_lhb_detail_em**: 获取龙虎榜详情（指定日期范围）
+- **stock_lhb_stock_statistic_em**: 获取个股上榜统计
+- **stock_lhb_jgmmtj_em**: 获取机构买卖每日统计
+- **stock_lhb_jgstatistic_em**: 获取机构席位追踪
+- **stock_lhb_hyyyb_em**: 获取每日活跃营业部
+- **stock_lhb_yybph_em**: 获取营业部排行
+- **stock_lhb_traderstatistic_em**: 获取营业部统计
+- **stock_lhb_stock_detail_em**: 获取个股龙虎榜买卖详情
+
+上榜条件（沪深交易所规则）
+--------------------------
+1. 日涨跌幅偏离值达 ±7%
+2. 日振幅达到 15%
+3. 日换手率达 20%（创业板/科创板为 30%）
+4. 连续三个交易日内涨跌幅偏离值累计达 ±20%
+5. 无价格涨跌幅限制证券
+
+使用方式
+--------
+获取龙虎榜详情::
+
+    from instock.core.crawling.stock_lhb_em import stock_lhb_detail_em
+    df = stock_lhb_detail_em(start_date="20240101", end_date="20240115")
+    print(df.head())
+
+获取个股龙虎榜买卖明细::
+
+    from instock.core.crawling.stock_lhb_em import stock_lhb_stock_detail_em
+    df = stock_lhb_stock_detail_em(symbol="000788", date="20220315", flag="买入")
+    print(df)
+
+注意事项
+--------
+- 龙虎榜数据通常在收盘后更新
+- 部分接口需要分页获取，已自动处理
 """
+
 import random
 import time
 
 import pandas as pd
 from tqdm import tqdm
+
 from instock.core.eastmoney_fetcher import eastmoney_fetcher
 
 __author__ = 'myh '
 __date__ = '2025/12/31 '
 
-# 创建全局实例，供所有函数使用
+# 创建全局 HTTP 请求实例
 fetcher = eastmoney_fetcher()
 
 def stock_lhb_detail_em(

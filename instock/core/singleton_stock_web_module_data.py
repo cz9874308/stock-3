@@ -1,9 +1,46 @@
 #!/usr/local/bin/python
 # -*- coding: utf-8 -*-
+"""
+Web 模块数据配置单例模块
+
+本模块提供 Web 界面所需的模块配置数据的单例管理，定义了系统中所有可查询的
+数据表模块及其展示配置。
+
+核心概念
+--------
+- **模块配置**: 每个数据表在 Web 界面中的展示配置（名称、图标、列定义等）
+- **单例模式**: 模块配置在系统启动时初始化一次
+- **分类组织**: 模块按功能分类（综合选股、基本数据、指标数据、策略数据等）
+
+配置项说明
+----------
+每个模块配置包含：
+- mode: 模式（query 查询 / editor 编辑）
+- type: 分类类型（用于菜单分组）
+- ico: Font Awesome 图标类名
+- name: 显示名称（中文）
+- table_name: 数据库表名
+- columns: 列字段列表
+- column_names: 列中文名称列表
+- is_realtime: 是否实时数据
+- order_by: 默认排序
+
+使用方式
+--------
+获取模块配置::
+
+    from instock.core.singleton_stock_web_module_data import stock_web_module_data
+
+    # 获取所有模块列表
+    modules = stock_web_module_data().get_data_list()
+
+    # 获取指定表的模块配置
+    config = stock_web_module_data().get_data('cn_stock_spot')
+"""
 
 import instock.core.tablestructure as tbs
-from instock.lib.singleton_type import singleton_type
 import instock.core.web_module_data as wmd
+from instock.lib.singleton_type import singleton_type
 
 __author__ = 'myh '
 __date__ = '2023/3/10 '

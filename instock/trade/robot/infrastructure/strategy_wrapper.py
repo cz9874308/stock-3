@@ -1,6 +1,35 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+策略进程包装器模块
 
+本模块提供将策略运行在独立进程中的包装器，用于隔离策略运行环境。
+
+核心组件
+--------
+- **ProcessWrapper**: 进程包装器，将策略包装在独立进程中运行
+
+设计目的
+--------
+1. 隔离策略运行环境，避免策略崩溃影响主引擎
+2. 支持策略的独立重启
+3. 通过队列进行跨进程通信
+
+使用方式
+--------
+::
+
+    from instock.trade.robot.infrastructure.strategy_wrapper import ProcessWrapper
+
+    wrapper = ProcessWrapper(strategy)
+    wrapper.on_clock(event)  # 推送时钟事件
+    wrapper.stop()  # 停止策略进程
+
+注意事项
+--------
+- 跨进程通信使用 multiprocessing.Queue
+- 策略进程接收退出信号后会优雅关闭
+"""
 
 import multiprocessing as mp
 from threading import Thread

@@ -1,7 +1,50 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+收益率统计模块
+
+本模块提供股票买入后的收益率计算功能，用于回测分析和策略评估。
+
+核心概念
+--------
+- **累计涨跌幅**: 相对于买入日收盘价的累计涨跌百分比
+- **持仓天数**: 从买入日开始计算的持有天数
+- **区间收益**: 指定持仓期间的收益统计
+
+核心功能
+--------
+- **get_rates**: 计算从买入日开始的后续 N 日累计收益率
+
+使用方式
+--------
+计算买入后 100 个交易日的累计收益::
+
+    from instock.core.backtest.rate_stats import get_rates
+
+    rates = get_rates(
+        code_name=("2024-01-15", "000001", "平安银行"),
+        data=hist_data,
+        stock_column=rate_columns,
+        threshold=101  # 计算 100 天收益（+1 是因为包含买入日）
+    )
+    print(rates)
+
+返回数据说明
+------------
+返回的 Series 包含：
+- date: 买入日期
+- code: 股票代码
+- day_1 ~ day_N: 第 1~N 日的累计涨跌幅（百分比）
+
+注意事项
+--------
+- 收益率为相对于买入日收盘价的百分比
+- 如果历史数据不足，后续日期的收益率为 None
+"""
 
 import logging
+from typing import List, Optional, Tuple
+
 import numpy as np
 import pandas as pd
 

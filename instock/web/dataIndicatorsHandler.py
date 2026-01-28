@@ -1,11 +1,47 @@
 #!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
+"""
+技术指标可视化处理模块
 
-from abc import ABC
-from tornado import gen
+本模块提供股票技术指标的可视化页面和股票关注功能。
+
+核心组件
+--------
+- **GetDataIndicatorsHandler**: 渲染技术指标可视化页面（K 线图 + 指标）
+- **SaveCollectHandler**: 处理股票关注/取消关注操作
+
+可视化内容
+----------
+- K 线图
+- 成交量图
+- MACD、KDJ、RSI 等技术指标
+
+路由
+----
+- GET /instock/data/indicators?code=xxx&date=xxx: 技术指标页面
+- GET /instock/control/attention?code=xxx&otype=xxx: 关注操作
+
+使用方式
+--------
+查看股票技术指标::
+
+    http://localhost:9988/instock/data/indicators?code=000001&date=2024-01-15
+
+关注/取消关注::
+
+    # 关注
+    http://localhost:9988/instock/control/attention?code=000001&otype=0
+    # 取消关注
+    http://localhost:9988/instock/control/attention?code=000001&otype=1
+"""
+
 import logging
-import instock.core.stockfetch as stf
+from abc import ABC
+
+from tornado import gen
+
 import instock.core.kline.visualization as vis
+import instock.core.stockfetch as stf
 import instock.web.base as webBase
 
 __author__ = 'myh '
